@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 from vit import ViTForClassfication
 
 
-def save_experiment(experiment_name, config, model, train_losses, test_losses, accuracies, base_dir="experiments"):
+def save_experiment(experiment_name, config, model, optimizer, train_losses, test_losses, accuracies, base_dir="experiments"):
     outdir = os.path.join(base_dir, experiment_name)
     os.makedirs(outdir, exist_ok=True)
     
@@ -30,14 +30,21 @@ def save_experiment(experiment_name, config, model, train_losses, test_losses, a
         json.dump(data, f, sort_keys=True, indent=4)
     
     # Save the model
-    save_checkpoint(experiment_name, model, "final", base_dir=base_dir)
+    save_checkpoint(experiment_name, model, optimizer, "final", base_dir=base_dir)
 
 
-def save_checkpoint(experiment_name, model, epoch, base_dir="experiments", save_wandb=False):
+def save_checkpoint(experiment_name, model,optimizer, epoch, base_dir="experiments", save_wandb=False):
     outdir = os.path.join(base_dir, experiment_name)
     os.makedirs(outdir, exist_ok=True)
     cpfile = os.path.join(outdir, f'model_{epoch}.pt')
     torch.save(model.state_dict(), cpfile)
+
+    # Save model + optimizer states
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'epoch': epoch
+    }, cpfile)
 
     # Upload the model to checkpoints to W&B
     if save_wandb:

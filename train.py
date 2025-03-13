@@ -75,7 +75,7 @@ class Trainer:
                 save_checkpoint(self.exp_name, self.model, i+1, True)
         
         # Finally, save experiment results (model + stats)
-        save_experiment(self.exp_name, config, self.model, train_losses, test_losses, accuracies)
+        save_experiment(self.exp_name, config, self.model, self.optimizer, train_losses, test_losses, accuracies)
 
 
     def train_epoch(self, trainloader):

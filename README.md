@@ -5,21 +5,18 @@ A simplified PyTorch implementation of the paper [An Image is Worth 16x16 Words:
 
 ## Usage
 
-Install the dependencies
+### Install the dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-Training
+### Training
 
 ```bash
 python train.py --exp-name vit-with-10-epochs --epochs 10 --batch-size 32
 ```
 
-
-## Results
-
-The model was trained on the CIFAR-10 dataset for 100 epochs with a batch size of 256. The learning rate was set to 0.01 and no learning rate schedule was used. The model config was used to train the model:
+The model was trained on the `CIFAR-10` dataset for `100` epochs with a batch size of `256`. The learning rate was set to `0.01` and no learning rate schedule was used. The model config was used to train the model:
 
 ```python
 config = {
@@ -39,10 +36,10 @@ config = {
 ```
 
 # Tasks
-[x] Upgrade dependencies
-[x] Using W&B
-[x] Refactor and reorganize codebase
-[]
+- [x] Upgrade dependencies
+- [x] Using W&B
+- [x] Refactor and reorganize codebase
+- [x] Improve the save checkpoint function to save optimizer states
 
 
 ## References
