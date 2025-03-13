@@ -30,7 +30,9 @@ class Trainer:
         self.device = device
 
 
-    def train(self, trainloader, testloader, epochs, save_model_every_n_epochs=0):
+    def train(self, trainloader, testloader, epochs, 
+              save_model_every_n_epochs=0,
+              early_stopping_patience=None):
         """
         Train the model for the specified number of epochs.
 
@@ -39,12 +41,16 @@ class Trainer:
             testloader:     DataLoader for validation/test set
             epochs:         number of epochs to run
             save_model_every_n_epochs:  how often to save a checkpoint (0 = never during training)
+            early_stopping_patience (int or None):  If not None, training stops early if test loss hasn't improved for 'patience' epochs.
         """
         # Keep track of the losses and accuracies
         train_losses, test_losses, accuracies = [], [], []
         
+        best_loss = float('inf')
+        patience_counter = 0
+
         # Train the model
-        for i in range(epochs):
+        for epoch_idx in range(epochs):
             # Train for 1 epoch
             train_loss = self.train_epoch(trainloader)
 
@@ -56,23 +62,40 @@ class Trainer:
             test_losses.append(test_loss)
             accuracies.append(accuracy)
 
-            print(f"Epoch: {i+1}, \
+            print(f"Epoch: {epoch_idx+1}, \
                     Train loss: {train_loss:.4f}, \
                     Test loss: {test_loss:.4f}, \
                     Accuracy: {accuracy:.4f}")
             
             # Log to W&B
             wandb.log({
-                "epoch": i+1,
+                "epoch": epoch_idx+1,
                 "train_loss": train_loss,
                 "test_loss": test_loss,
                 "accuracy": accuracy
             })
 
+            # Early Stopping Logic
+            if early_stopping_patience is not None:
+                if test_loss < best_loss:
+                    best_loss = test_loss
+                    patience_counter = 0
+                    
+                    # Save the best model so far
+                    save_checkpoint(self.exp_name, self.model, self.optimizer, "best")
+                else:
+                    patience_counter += 1
+                    if patience_counter >= early_stopping_patience:
+                        print(f"Early stopping triggered at epoch {epoch_idx+1}!")
+                        break
+
             # Periodically save checkpoint (unless it's the very last epoch)
-            if save_model_every_n_epochs > 0 and (i+1) % save_model_every_n_epochs == 0 and i+1 != epochs:
-                print('\tSave checkpoint at epoch ', i+1)
-                save_checkpoint(self.exp_name, self.model, i+1, True)
+            if save_model_every_n_epochs > 0 \
+                and (epoch_idx+1) % save_model_every_n_epochs == 0 \
+                and epoch_idx+1 != epochs:
+                
+                print('\tSave checkpoint at epoch ', epoch_idx+1)
+                save_checkpoint(self.exp_name, self.model, self.optimizer, epoch_idx+1, True)
         
         # Finally, save experiment results (model + stats)
         save_experiment(self.exp_name, config, self.model, self.optimizer, train_losses, test_losses, accuracies)
@@ -163,6 +186,7 @@ def parse_args():
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--device", type=str)
     parser.add_argument("--save-model-every", type=int, default=0)
+    parser.add_argument("--patience", type=int, default=5)
 
     args = parser.parse_args()
 
@@ -187,6 +211,7 @@ def main():
     lr = args.lr
     device = args.device
     save_model_every_n_epochs = args.save_model_every
+    patience = args.patience
 
     # Tracking metrics with W&B
     wandb.init(
@@ -207,7 +232,7 @@ def main():
     trainer = Trainer(model, optimizer, loss_fn, args.exp_name, device=device)
 
     # 4) Train the model
-    trainer.train(trainloader, testloader, epochs, save_model_every_n_epochs=save_model_every_n_epochs)
+    trainer.train(trainloader, testloader, epochs, save_model_every_n_epochs=save_model_every_n_epochs, early_stopping_patience=patience)
 
     # 5) Finish W&B
     wandb.finish()
