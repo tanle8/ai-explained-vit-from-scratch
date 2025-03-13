@@ -186,7 +186,7 @@ def parse_args():
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--device", type=str)
     parser.add_argument("--save-model-every", type=int, default=0)
-    parser.add_argument("--patience", type=int, default=5)
+    parser.add_argument("--patience", type=int, default=10)
 
     args = parser.parse_args()
 
