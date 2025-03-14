@@ -16,7 +16,7 @@ pip install -r requirements.txt
 python train.py --exp-name vit-with-10-epochs --epochs 10 --batch-size 32
 ```
 
-The model was trained on the `CIFAR-10` dataset for `100` epochs with a batch size of `256`. The learning rate was set to `0.01` and no learning rate schedule was used. The model config was used to train the model:
+The model was trained on the `CIFAR-10` dataset for `67` epochs (hit early stopping) with a batch size of `256` on an apple silicon (M1 pro) (Achieving the similar result when training on Google Colab with CUDA). The learning rate was set to `0.01` and no learning rate schedule was used. The model config was used to train the model:
 
 ```python
 config = {
@@ -40,6 +40,10 @@ config = {
 - [x] Using W&B
 - [x] Refactor and reorganize codebase
 - [x] Improve the save checkpoint function to save optimizer states
+- [x] Add early stopping
+- [x] Training with colab and save results to Google Drive
+- [x] Add training with Apple Silicon capability
+- [] Experiment with warm-up
 
 
 ## References
