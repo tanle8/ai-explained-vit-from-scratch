@@ -16,7 +16,7 @@ pip install -r requirements.txt
 python train.py --exp-name vit-with-10-epochs --epochs 10 --batch-size 32
 ```
 
-The model was trained on the `CIFAR-10` dataset for `67` epochs (hit early stopping) with a batch size of `256` on an apple silicon (M1 pro) (Achieving the similar result when training on Google Colab with CUDA). The learning rate was set to `0.01` and no learning rate schedule was used. The model config was used to train the model:
+The model was trained on the `CIFAR-10` dataset for `67` epochs (hit early stopping) with a batch size of `256` on an apple silicon (M1 Pro) (Achieving the similar result when training on Google Colab with CUDA). The learning rate was set to `0.01` and no learning rate schedule was used. The model config was used to train the model:
 
 ```python
 config = {
@@ -34,6 +34,8 @@ config = {
     "qkv_bias": True,
 }
 ```
+
+For details result and conclusion, check out the `inpect.ipynb` in the root directory.
 
 # Tasks
 - [x] Upgrade dependencies
